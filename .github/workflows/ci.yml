@@ -16,3 +16,23 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run mobile:test
       - run: bun run mobile:typecheck
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Prebuild native Android project
+        run: bun run mobile:prebuild:github
+
+      - name: Build debug APK
+        working-directory: apps/mobile/android
+        run: ./gradlew assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wavio-apk
+          path: apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
